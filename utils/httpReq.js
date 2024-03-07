@@ -33,7 +33,7 @@ const getWeatherData = async (type, data) => {
     if (+json.cod === 200) {
       return json;
     } else {
-        showModal(json.message);
+      showModal(json.message);
     }
   } catch (error) {
     showModal("An error occured when feching data.");

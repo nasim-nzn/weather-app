@@ -1,15 +1,6 @@
 import getWeatherData from "./utils/httpReq.js";
 import { removeModal, showModal } from "./utils/modal.js";
-
-const DAYS = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+import { getWeekDay } from "./utils/customeDate.js";
 
 const searchInput = document.querySelector("input");
 const searchButton = document.querySelector("button");
@@ -17,6 +8,7 @@ const weatherContainer = document.getElementById("weather");
 const forecastContainer = document.getElementById("forecast");
 const locationIcon = document.getElementById("location");
 const modalButton = document.getElementById("modal-button");
+const loader = document.querySelector("#weather span");
 
 const renderCurrentWeather = (data) => {
   if (!data) return;
@@ -38,11 +30,8 @@ const renderCurrentWeather = (data) => {
   weatherContainer.innerHTML = weatherJSX;
 };
 
-const getWeekDay = (date) => {
-  return DAYS[new Date(date * 1000).getDay()];
-};
-
 const renderForecastWeather = (data) => {
+  // loader.style.display = "inline-block";
   if (!data) return;
   forecastContainer.innerHTML = "";
   data = data.list.filter((obj) => obj.dt_txt.endsWith("12:00:00"));
@@ -69,6 +58,9 @@ const searchHandler = async () => {
     return;
   }
 
+  weatherContainer.innerHTML = "";
+  weatherContainer.prepend(loader);
+
   const currentData = await getWeatherData("current", cityName);
   renderCurrentWeather(currentData);
   const forecastData = await getWeatherData("forecast", cityName);
@@ -76,6 +68,8 @@ const searchHandler = async () => {
 };
 
 const positionCallback = async (position) => {
+  weatherContainer.innerHTML = "";
+  weatherContainer.prepend(loader);
   const currentData = await getWeatherData("current", position.coords);
   renderCurrentWeather(currentData);
   const forecastData = await getWeatherData("forecast", position.coords);
@@ -94,6 +88,15 @@ const locationHandler = () => {
   }
 };
 
+const initHandler = async () => {
+  loader.style.display = "inline-block";
+  const currentData = await getWeatherData("current", "tehran");
+  renderCurrentWeather(currentData);
+  const forecastData = await getWeatherData("forecast", "tehran");
+  renderForecastWeather(forecastData);
+};
+
 searchButton.addEventListener("click", searchHandler);
 locationIcon.addEventListener("click", locationHandler);
 modalButton.addEventListener("click", removeModal);
+document.addEventListener("DOMContentLoaded", initHandler);
